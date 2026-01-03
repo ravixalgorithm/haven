@@ -1,5 +1,8 @@
-# Base image
-FROM node:20-alpine AS base
+# Base image using Debian-slim (better for native binaries like Prisma/OpenSSL)
+FROM node:20-slim AS base
+
+# Install OpenSSL (required for Prisma)
+RUN apt-get update -y && apt-get install -y openssl
 
 # Install dependencies only when needed
 FROM base AS deps
