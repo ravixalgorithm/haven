@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { errorHandler } from "./middleware/errorHandler";
+import { prisma } from "./lib/prisma";
 import authRoutes from './routes/auth';
 import snippetRoutes from './routes/snippets';
 import commentRoutes from './routes/comments';
