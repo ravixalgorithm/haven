@@ -72,11 +72,50 @@ app.post("/login", async (c) => {
 });
 
 // GitHub OAuth
-// GitHub OAuth
 app.post("/github", async (c) => {
     const { code } = await c.req.json();
+    const isMock = c.req.query("mock") === "true";
     const debugLog: string[] = [];
     const log = (msg: string) => debugLog.push(`${Date.now()}: ${msg}`);
+
+    // Mock Mode for Debugging
+    if (isMock) {
+        log("Mock Mode Active");
+        try {
+            const email = "mock_user@example.com";
+            const githubId = "mock_12345";
+
+            let user = await prisma.user.findFirst({ where: { email } });
+
+            if (!user) {
+                user = await prisma.user.create({
+                    data: {
+                        email,
+                        username: "MockUser",
+                        githubId,
+                        avatarUrl: "https://github.com/ghost.png",
+                        bio: "I am a ghost"
+                    }
+                });
+            }
+
+            const token = await AuthService.generateToken(user.id);
+            return c.json({
+                status: "success",
+                data: {
+                    user: {
+                        id: user.id.toString(),
+                        email: user.email,
+                        username: user.username,
+                        avatarUrl: user.avatarUrl,
+                    },
+                    token,
+                },
+            });
+        } catch (e: any) {
+            return c.json({ status: "error", error: e.message, debugLogs: debugLog }, 500);
+        }
+    }
 
     if (!code) throw new ValidationError("Missing code");
 
