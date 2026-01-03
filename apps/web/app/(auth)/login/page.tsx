@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { setToken } from '@/lib/auth';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { API_URL } from '@/lib/config';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -28,7 +29,7 @@ export default function LoginPage() {
         }
 
         try {
-            const res = await fetch('http://localhost:3002/api/v1/auth/login', {
+            const res = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

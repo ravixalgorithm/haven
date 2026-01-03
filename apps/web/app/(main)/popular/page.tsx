@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import SnippetCard from '@/components/SnippetCard';
+import { API_URL } from '@/lib/config';
 
 interface Snippet {
     id: string;
@@ -35,7 +36,7 @@ export default function PopularPage() {
 
         try {
             // Popular page shows best snippets by default (highest votes + views)
-            const res = await fetch(`http://localhost:3002/api/v1/popular?sort=best&page=${pageNum}&limit=12`);
+            const res = await fetch(`${API_URL}/popular?sort=best&page=${pageNum}&limit=12`);
             const data = await res.json();
 
             if (data.status === 'success') {

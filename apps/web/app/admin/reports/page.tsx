@@ -5,6 +5,7 @@ import { getToken } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import Link from "next/link";
+import { API_URL } from "@/lib/config";
 
 export default function ReportsPage() {
     const [reports, setReports] = useState<any[]>([]);
@@ -16,7 +17,7 @@ export default function ReportsPage() {
         if (!token) return;
 
         try {
-            const res = await fetch("http://localhost:3002/api/v1/admin/reports?status=pending", {
+            const res = await fetch(`${API_URL}/admin/reports?status=pending`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -42,7 +43,7 @@ export default function ReportsPage() {
             if (!confirm("Are you sure you want to delete this content?")) return;
 
             try {
-                await fetch(`http://localhost:3002/api/v1/admin/snippets/${snippetId}`, {
+                await fetch(`${API_URL}/admin/snippets/${snippetId}`, {
                     method: "DELETE",
                     headers: { Authorization: `Bearer ${token}` }
                 });
@@ -57,7 +58,7 @@ export default function ReportsPage() {
         // Resolve or Dismiss
         const status = action === "resolve" ? "resolved" : "dismissed";
         try {
-            await fetch(`http://localhost:3002/api/v1/admin/reports/${reportId}`, {
+            await fetch(`${API_URL}/admin/reports/${reportId}`, {
                 method: "PUT",
                 headers: {
                     Authorization: `Bearer ${token}`,

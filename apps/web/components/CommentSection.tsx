@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { getToken } from '@/lib/auth';
+import { API_URL } from '@/lib/config';
 
 interface Comment {
     id: string;
@@ -34,7 +35,7 @@ export default function CommentSection({ snippetId }: { snippetId: string }) {
         const token = getToken();
         if (!token) return;
         try {
-            const res = await fetch('http://localhost:3002/api/v1/auth/me', {
+            const res = await fetch(`${API_URL}/auth/me`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -46,7 +47,7 @@ export default function CommentSection({ snippetId }: { snippetId: string }) {
 
     const fetchComments = async () => {
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/snippets/${snippetId}/comments?limit=100`);
+            const res = await fetch(`${API_URL}/snippets/${snippetId}/comments?limit=100`);
             if (res.ok) {
                 const data = await res.json();
                 setComments(data.data.comments || []);
@@ -164,7 +165,7 @@ function CommentItem({ comment, getReplies, snippetId, onReplyPosted, currentUse
         setScore(newScore);
 
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/comments/${comment.id}/${type}`, {
+            const res = await fetch(`${API_URL}/comments/${comment.id}/${type}`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -183,7 +184,7 @@ function CommentItem({ comment, getReplies, snippetId, onReplyPosted, currentUse
         if (!token || !editContent.trim()) return;
 
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/comments/${comment.id}`, {
+            const res = await fetch(`${API_URL}/comments/${comment.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -210,7 +211,7 @@ function CommentItem({ comment, getReplies, snippetId, onReplyPosted, currentUse
         if (!token) return;
 
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/comments/${comment.id}`, {
+            const res = await fetch(`${API_URL}/comments/${comment.id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -236,7 +237,7 @@ function CommentItem({ comment, getReplies, snippetId, onReplyPosted, currentUse
         if (!reason) return;
 
         try {
-            const res = await fetch('http://localhost:3002/api/v1/reports', {
+            const res = await fetch(`${API_URL}/reports`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -391,7 +392,7 @@ function CommentInput({ snippetId, parentId, onCommentPosted, autoFocus }: { sni
 
         setSubmitting(true);
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/snippets/${snippetId}/comments`, {
+            const res = await fetch(`${API_URL}/snippets/${snippetId}/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

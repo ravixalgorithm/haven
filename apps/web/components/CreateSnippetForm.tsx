@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken } from '@/lib/auth';
 import ReactMarkdown from 'react-markdown';
+import { API_URL } from '@/lib/config';
 
 const LANGUAGES = [
     'javascript', 'typescript', 'python', 'java', 'go', 'rust',
@@ -82,7 +83,7 @@ export default function CreateSnippetForm() {
             const match = formData.description.match(codeBlockRegex);
             const extractedCode = match ? match[1] : '// No code block provided';
 
-            const response = await fetch('http://localhost:3002/api/v1/snippets', {
+            const response = await fetch(`${API_URL}/snippets`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/config';
 
 export default function Signup() {
     const router = useRouter();
@@ -40,7 +41,7 @@ export default function Signup() {
         }
 
         try {
-            const res = await fetch('http://localhost:3002/api/v1/auth/register', {
+            const res = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

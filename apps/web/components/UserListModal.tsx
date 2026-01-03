@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { API_URL } from '@/lib/config';
 
 interface User {
     username: string;
@@ -21,7 +22,7 @@ export default function UserListModal({ type, username, onClose }: UserListModal
 
     useEffect(() => {
         setLoading(true);
-        fetch(`http://localhost:3002/api/v1/users/${username}/${type}`)
+        fetch(`${API_URL}/users/${username}/${type}`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {

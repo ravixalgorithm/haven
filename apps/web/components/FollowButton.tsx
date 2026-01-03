@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getToken } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/config';
 
 interface FollowButtonProps {
     username: string;
@@ -37,7 +38,7 @@ export default function FollowButton({ username, initialIsFollowing, onToggle, c
             }
 
             try {
-                const res = await fetch(`http://localhost:3002/api/v1/users/${username}/is-following`, {
+                const res = await fetch(`${API_URL}/users/${username}/is-following`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -70,7 +71,7 @@ export default function FollowButton({ username, initialIsFollowing, onToggle, c
         if (onToggle) onToggle(newState);
 
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/users/${username}/follow`, {
+            const res = await fetch(`${API_URL}/users/${username}/follow`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` }
             });

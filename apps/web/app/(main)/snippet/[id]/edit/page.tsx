@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken } from '@/lib/auth';
+import { API_URL } from '@/lib/config';
 
 const LANGUAGES = [
     'javascript', 'typescript', 'python', 'java', 'go', 'rust',
@@ -27,7 +28,7 @@ export default function EditSnippetPage(props: { params: Promise<{ id: string }>
     useEffect(() => {
         const fetchSnippet = async () => {
             try {
-                const res = await fetch(`http://localhost:3002/api/v1/snippets/${params.id}`);
+                const res = await fetch(`${API_URL}/snippets/${params.id}`);
                 if (!res.ok) throw new Error('Failed to fetch snippet');
                 const data = await res.json();
                 setForm({
@@ -74,7 +75,7 @@ export default function EditSnippetPage(props: { params: Promise<{ id: string }>
                 .map(t => t.trim())
                 .filter(t => t.length > 0);
 
-            const res = await fetch(`http://localhost:3002/api/v1/snippets/${params.id}`, {
+            const res = await fetch(`${API_URL}/snippets/${params.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

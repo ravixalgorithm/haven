@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import SnippetCard from '@/components/SnippetCard';
 import { getToken } from '@/lib/auth';
+import { API_URL } from '@/lib/config';
 
 interface Snippet {
     id: string;
@@ -44,7 +45,7 @@ export default function SavedPage() {
         }
 
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/saved?page=${pageNum}&limit=12`, {
+            const res = await fetch(`${API_URL}/saved?page=${pageNum}&limit=12`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { VOTE_UPDATE_EVENT } from '@/lib/events';
+import { API_URL } from '@/lib/config';
 
 interface TrendingSnippet {
     id: string;
@@ -17,7 +18,7 @@ export default function RightSidebar() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:3002/api/v1/trending?limit=10')
+        fetch(`${API_URL}/trending?limit=10`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.status === 'success' && data.data) {

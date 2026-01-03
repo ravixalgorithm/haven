@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
 import CommentSection from '@/components/CommentSection';
 import { getToken } from '@/lib/auth';
+import { API_URL } from '@/lib/config';
 
 export default function SnippetDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = use(props.params);
@@ -25,7 +26,7 @@ export default function SnippetDetailPage(props: { params: Promise<{ id: string 
     useEffect(() => {
         const fetchSnippet = async () => {
             try {
-                const res = await fetch(`http://localhost:3002/api/v1/snippets/${params.id}`);
+                const res = await fetch(`${API_URL}/snippets/${params.id}`);
                 if (!res.ok) {
                     if (res.status === 404) return null;
                     throw new Error('Failed to fetch snippet');
@@ -45,7 +46,7 @@ export default function SnippetDetailPage(props: { params: Promise<{ id: string 
             const token = getToken();
             if (!token) return;
             try {
-                const res = await fetch(`http://localhost:3002/api/v1/snippets/${params.id}/vote`, {
+                const res = await fetch(`${API_URL}/snippets/${params.id}/vote`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -59,7 +60,7 @@ export default function SnippetDetailPage(props: { params: Promise<{ id: string 
             const token = getToken();
             if (!token) return;
             try {
-                const res = await fetch('http://localhost:3002/api/v1/auth/me', {
+                const res = await fetch(`${API_URL}/auth/me`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -80,7 +81,7 @@ export default function SnippetDetailPage(props: { params: Promise<{ id: string 
 
         setIsDeleting(true);
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/snippets/${params.id}`, {
+            const res = await fetch(`${API_URL}/snippets/${params.id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -110,7 +111,7 @@ export default function SnippetDetailPage(props: { params: Promise<{ id: string 
         if (!reason) return;
 
         try {
-            const res = await fetch('http://localhost:3002/api/v1/reports', {
+            const res = await fetch(`${API_URL}/reports`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -171,7 +172,7 @@ export default function SnippetDetailPage(props: { params: Promise<{ id: string 
         setVotes(nextVotes);
 
         try {
-            const response = await fetch(`http://localhost:3002/api/v1/snippets/${params.id}/${type}`, {
+            const response = await fetch(`${API_URL}/snippets/${params.id}/${type}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
             });

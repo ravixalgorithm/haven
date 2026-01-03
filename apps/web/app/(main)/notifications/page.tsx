@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { getToken } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/config';
 
 interface Notification {
     id: string;
@@ -30,7 +31,7 @@ export default function NotificationsPage() {
 
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:3002/api/v1/notifications?limit=50', {
+            const res = await fetch(`${API_URL}/notifications?limit=50`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -49,7 +50,7 @@ export default function NotificationsPage() {
         if (!token) return;
 
         try {
-            await fetch('http://localhost:3002/api/v1/notifications/read-all', {
+            await fetch(`${API_URL}/notifications/read-all`, {
                 method: 'PUT',
                 headers: { Authorization: `Bearer ${token}` },
             });

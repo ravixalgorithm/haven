@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken } from '@/lib/auth';
+import { API_URL } from '@/lib/config';
 
 export default function ProfileRedirect() {
     const router = useRouter();
@@ -16,7 +17,7 @@ export default function ProfileRedirect() {
         }
 
         // Fetch current user info and redirect to their profile
-        fetch('http://localhost:3002/api/v1/auth/me', {
+        fetch(`${API_URL}/auth/me`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())

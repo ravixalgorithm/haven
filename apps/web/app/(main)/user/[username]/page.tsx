@@ -9,6 +9,7 @@ import SnippetCard from '@/components/SnippetCard';
 import FollowButton from '@/components/FollowButton';
 import UserListModal from '@/components/UserListModal';
 import { getToken } from '@/lib/auth';
+import { API_URL } from '@/lib/config';
 
 interface User {
     id: string;
@@ -56,7 +57,7 @@ export default function UserProfile(props: { params: Promise<{ username: string 
 
     const fetchSnippets = useCallback((pageNum: number) => {
         setLoadingSnippets(true);
-        fetch(`http://localhost:3002/api/v1/users/${decodedUsername}/snippets?page=${pageNum}&limit=12`)
+        fetch(`${API_URL}/users/${decodedUsername}/snippets?page=${pageNum}&limit=12`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -77,7 +78,7 @@ export default function UserProfile(props: { params: Promise<{ username: string 
         // Check current user
         const token = getToken();
         if (token) {
-            fetch('http://localhost:3002/api/v1/auth/me', {
+            fetch(`${API_URL}/auth/me`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(r => r.json())
@@ -89,7 +90,7 @@ export default function UserProfile(props: { params: Promise<{ username: string 
 
         // Fetch Profile
         setLoadingUser(true);
-        fetch(`http://localhost:3002/api/v1/users/${decodedUsername}`)
+        fetch(`${API_URL}/users/${decodedUsername}`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {

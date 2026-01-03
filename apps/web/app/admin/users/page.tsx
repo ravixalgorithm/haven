@@ -5,6 +5,7 @@ import { getToken } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import Image from "next/image";
+import { API_URL } from "@/lib/config";
 
 export default function UsersPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -25,7 +26,7 @@ export default function UsersPage() {
         if (!token) return;
 
         try {
-            const res = await fetch(`http://localhost:3002/api/v1/admin/users?search=${debouncedSearch}`, {
+            const res = await fetch(`${API_URL}/admin/users?search=${debouncedSearch}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -50,7 +51,7 @@ export default function UsersPage() {
         if (!token) return;
 
         try {
-            await fetch(`http://localhost:3002/api/v1/admin/users/${userId}/ban`, {
+            await fetch(`${API_URL}/admin/users/${userId}/ban`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });

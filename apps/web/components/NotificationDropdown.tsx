@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { getToken } from '@/lib/auth';
 import { useSocket } from '@/context/SocketContext';
+import { API_URL } from '@/lib/config';
 
 interface Notification {
     id: string;
@@ -29,7 +30,7 @@ export default function NotificationDropdown() {
 
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:3002/api/v1/notifications', {
+            const res = await fetch(`${API_URL}/notifications`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -48,7 +49,7 @@ export default function NotificationDropdown() {
         if (!token) return;
 
         try {
-            const res = await fetch('http://localhost:3002/api/v1/notifications/unread-count', {
+            const res = await fetch(`${API_URL}/notifications/unread-count`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -65,7 +66,7 @@ export default function NotificationDropdown() {
         if (!token) return;
 
         try {
-            await fetch('http://localhost:3002/api/v1/notifications/read-all', {
+            await fetch(`${API_URL}/notifications/read-all`, {
                 method: 'PUT',
                 headers: { Authorization: `Bearer ${token}` },
             });

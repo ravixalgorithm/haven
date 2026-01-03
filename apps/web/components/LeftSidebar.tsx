@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { getToken } from '@/lib/auth';
+import { API_URL } from '@/lib/config';
 
 const ICONS = {
     Home: <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>,
@@ -30,7 +31,7 @@ export default function LeftSidebar() {
     useEffect(() => {
         setIsAuth(!!getToken());
         // Fetch trending topics (tags/languages) from API
-        fetch('http://localhost:3002/api/v1/topics')
+        fetch(`${API_URL}/topics`)
             .then(res => res.ok ? res.json() : { data: { topics: [] } })
             .then(data => setTopics(data.data?.topics || []))
             .catch(() => setTopics([]));

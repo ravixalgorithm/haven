@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { getToken } from "@/lib/auth";
+import { API_URL } from "@/lib/config";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -19,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             }
 
             try {
-                const res = await fetch("http://localhost:3002/api/v1/auth/me", {
+                const res = await fetch(`${API_URL}/auth/me`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -29,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 // Let's update /me endpoint in auth.ts to return role first? Or just trust accessing /admin/stats will fail if not admin.
                 // Better: Try to fetch /admin/stats. If 403, redirect.
 
-                const adminRes = await fetch("http://localhost:3002/api/v1/admin/stats", {
+                const adminRes = await fetch(`${API_URL}/admin/stats`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

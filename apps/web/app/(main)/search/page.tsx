@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import SnippetCard from '@/components/SnippetCard';
 import Select from '@/components/Select';
+import { API_URL } from '@/lib/config';
 
 interface Snippet {
     id: string;
@@ -52,7 +53,7 @@ function SearchContent() {
         const fetchResults = async () => {
             setLoading(true);
             try {
-                let url = `http://localhost:3002/api/v1/search?q=${encodeURIComponent(query)}&limit=50`;
+                let url = `${API_URL}/search?q=${encodeURIComponent(query)}&limit=50`;
                 if (timeRange !== 'all') url += `&timeRange=${timeRange}`;
                 if (sort !== 'relevance') url += `&sort=${sort}`;
                 if (language !== 'all') url += `&language=${language}`;

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import SnippetCard from '@/components/SnippetCard';
+import { API_URL } from '@/lib/config';
 
 interface Snippet {
   id: string;
@@ -60,7 +61,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3002/api/v1/trending?limit=6')
+    fetch(`${API_URL}/trending?limit=6`)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 'success' && data.data) {

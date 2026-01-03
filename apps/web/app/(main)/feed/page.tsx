@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import SnippetCard from '@/components/SnippetCard';
+import { API_URL } from '@/lib/config';
 
 interface Snippet {
     id: string;
@@ -49,10 +50,10 @@ function FeedContent() {
             let url;
             if (query) {
                 // Use search endpoint
-                url = `http://localhost:3002/api/v1/search?q=${encodeURIComponent(query)}&page=${pageNum}&limit=12&sort=${sort}`;
+                url = `${API_URL}/search?q=${encodeURIComponent(query)}&page=${pageNum}&limit=12&sort=${sort}`;
             } else {
                 // Use popular endpoint
-                url = `http://localhost:3002/api/v1/popular?sort=${sort}&page=${pageNum}&limit=12`;
+                url = `${API_URL}/popular?sort=${sort}&page=${pageNum}&limit=12`;
             }
 
             const res = await fetch(url);

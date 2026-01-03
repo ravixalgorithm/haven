@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getToken } from "@/lib/auth";
+import { API_URL } from "@/lib/config";
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState({
@@ -17,7 +18,7 @@ export default function AdminDashboard() {
             if (!token) return;
 
             try {
-                const res = await fetch("http://localhost:3002/api/v1/admin/stats", {
+                const res = await fetch(`${API_URL}/admin/stats`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();

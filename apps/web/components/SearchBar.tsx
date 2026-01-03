@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+import { API_URL } from '@/lib/config';
+
 // Hook for debounce
 function useDebounce<T>(value: T, delay: number): T {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -55,7 +57,7 @@ export default function SearchBar() {
         const fetchResults = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`http://localhost:3002/api/v1/search?q=${encodeURIComponent(debouncedQuery)}&limit=5`);
+                const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(debouncedQuery)}&limit=5`);
                 if (res.ok) {
                     const data = await res.json();
                     setResults(data.data.results || []);

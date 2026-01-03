@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken } from '@/lib/auth';
 import Link from 'next/link';
+import { API_URL } from '@/lib/config';
 
 interface UserProfile {
     id: string;
@@ -29,7 +30,7 @@ export default function EditProfilePage() {
             return;
         }
 
-        fetch('http://localhost:3002/api/v1/auth/me', {
+        fetch(`${API_URL}/auth/me`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
@@ -58,7 +59,7 @@ export default function EditProfilePage() {
         }
 
         try {
-            const res = await fetch('http://localhost:3002/api/v1/users/me/update', {
+            const res = await fetch(`${API_URL}/users/me/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
