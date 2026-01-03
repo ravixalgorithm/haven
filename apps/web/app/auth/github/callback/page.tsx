@@ -21,7 +21,7 @@ function GithubCallbackContent() {
         const exchangeCode = async () => {
             try {
                 // Debug Alert - Uncommented to verify deployment
-                alert(`Authenticating... \nAPI: ${API_URL}`);
+                // alert(`Authenticating... \nAPI: ${API_URL}`);
 
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
