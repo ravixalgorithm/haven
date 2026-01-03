@@ -62,6 +62,39 @@ app.route('/saved', savedRoutes);
 app.route('/admin', adminRoutes);
 app.route('/reports', reportsRoutes);
 
+// Debug System Endpoint
+app.get("/debug-system", async (c) => {
+    const results: any = {};
+
+    // 1. Check Outbound Network
+    try {
+        const start = Date.now();
+        const res = await fetch('https://api.github.com/zen', { headers: { 'User-Agent': 'Hono-App' } });
+        results.network = {
+            status: res.ok ? 'ok' : 'error',
+            latency: Date.now() - start,
+            message: await res.text()
+        };
+    } catch (e: any) {
+        results.network = { status: 'failed', error: e.message };
+    }
+
+    // 2. Check Database Complex Query
+    try {
+        const start = Date.now();
+        const count = await prisma.user.count();
+        results.database = {
+            status: 'ok',
+            latency: Date.now() - start,
+            userCount: count
+        };
+    } catch (e: any) {
+        results.database = { status: 'failed', error: e.message };
+    }
+
+    return c.json(results);
+});
+
 // Export for Vercel
 export default app;
 
