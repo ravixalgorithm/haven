@@ -4,6 +4,8 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { setToken } from '@/lib/auth';
 
+import { API_URL } from '@/lib/config';
+
 function GithubCallbackContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -18,7 +20,7 @@ function GithubCallbackContent() {
 
         const exchangeCode = async () => {
             try {
-                const res = await fetch('http://localhost:3002/api/v1/auth/github', {
+                const res = await fetch(`${API_URL}/auth/github`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code })
