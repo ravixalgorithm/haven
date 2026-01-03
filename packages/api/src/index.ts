@@ -33,9 +33,17 @@ app.use("*", logger());
 app.use(
     "*",
     cors({
-        origin: "*", // Allow all origins for now, verify requirement later
-        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowHeaders: ["Content-Type", "Authorization"],
+        origin: (origin, c) => {
+            // Allow all origins in development, or specific origins in production
+            const allowedOrigins = (process.env.CORS_ORIGIN || "").split(",");
+            if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
+                return origin || "*";
+            }
+            return allowedOrigins[0]; // Fallback
+        },
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+        allowHeaders: ["Content-Type", "Authorization", "Cookie"],
+        credentials: true,
     })
 );
 
