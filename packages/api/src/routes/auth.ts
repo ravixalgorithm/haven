@@ -72,22 +72,21 @@ app.post("/login", async (c) => {
 });
 
 // GitHub OAuth
+// GitHub OAuth
 app.post("/github", async (c) => {
     const { code } = await c.req.json();
+    const debugLog: string[] = [];
+    const log = (msg: string) => debugLog.push(`${Date.now()}: ${msg}`);
 
-    if (!code) {
-        throw new ValidationError("Missing code");
-    }
+    if (!code) throw new ValidationError("Missing code");
 
     const clientId = process.env.GITHUB_CLIENT_ID;
     const clientSecret = process.env.GITHUB_CLIENT_SECRET;
 
-    if (!clientId || !clientSecret) {
-        throw new ServerError("Server configuration error");
-    }
+    if (!clientId || !clientSecret) throw new ServerError("Server configuration error");
 
     try {
-        // 1. Exchange code
+        log("Step 1: Exchange Code");
         const tokenRes = await fetch(`https://github.com/login/oauth/access_token?client_id=${clientId}&client_secret=${clientSecret}&code=${code}`, {
             method: "POST",
             headers: { Accept: "application/json" },
@@ -95,18 +94,20 @@ app.post("/github", async (c) => {
         const tokenData = await tokenRes.json();
 
         if (tokenData.error || !tokenData.access_token) {
-            throw new AuthError("Failed to exchange code");
+            throw new Error(`GitHub Token Error: ${JSON.stringify(tokenData)}`);
         }
+        log("Step 2: Got Token");
 
-        // 2. Fetch User
+        log("Step 3: Fetch User");
         const userRes = await fetch("https://api.github.com/user", {
             headers: { Authorization: `Bearer ${tokenData.access_token}` },
         });
         const userData = await userRes.json();
+        log("Step 4: Got User Data");
 
-        // 3. Fetch Email if needed
         let email = userData.email;
         if (!email) {
+            log("Step 4b: Fetch Email");
             const emailRes = await fetch("https://api.github.com/user/emails", {
                 headers: { Authorization: `Bearer ${tokenData.access_token}` },
             });
@@ -115,16 +116,15 @@ app.post("/github", async (c) => {
             email = primary ? primary.email : null;
         }
 
-        if (!email) {
-            throw new ValidationError("No verified email found");
-        }
+        if (!email) throw new ValidationError("No verified email found");
 
-        // 4. Find/Create User
+        log("Step 5: DB Find User");
         let user = await prisma.user.findFirst({
             where: { OR: [{ githubId: userData.id.toString() }, { email }] }
         });
 
         if (user) {
+            log("Step 6: Update User");
             if (!user.githubId) {
                 user = await prisma.user.update({
                     where: { id: user.id },
@@ -132,6 +132,7 @@ app.post("/github", async (c) => {
                 });
             }
         } else {
+            log("Step 6: Create User");
             let username = userData.login;
             const existing = await prisma.user.findUnique({ where: { username } });
             if (existing) username = `${username}-${Math.floor(Math.random() * 1000)}`;
@@ -147,9 +148,10 @@ app.post("/github", async (c) => {
             });
         }
 
-        // 5. Generate Token
+        log("Step 7: Generate Token");
         const token = await AuthService.generateToken(user.id);
 
+        log("Step 8: Success");
         return c.json({
             status: "success",
             data: {
@@ -164,9 +166,12 @@ app.post("/github", async (c) => {
         });
 
     } catch (error: any) {
-        if (error instanceof AppError) throw error;
-        console.error("GitHub auth error:", error);
-        throw new AuthError("Authentication failed");
+        console.error("GitHub Auth Error Logs:", debugLog);
+        return c.json({
+            status: "error",
+            error: error.message,
+            debugLogs: debugLog
+        }, 500);
     }
 });
 
