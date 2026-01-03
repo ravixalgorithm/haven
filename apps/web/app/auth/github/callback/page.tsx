@@ -20,14 +20,19 @@ function GithubCallbackContent() {
 
         const exchangeCode = async () => {
             try {
-                // Debug Alert
-                // alert(`Authenticating... API: ${API_URL}`);
+                // Debug Alert - Uncommented to verify deployment
+                alert(`Authenticating... \nAPI: ${API_URL}`);
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
                 const res = await fetch(`${API_URL}/auth/github`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code })
+                    body: JSON.stringify({ code }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
 
                 if (!res.ok) {
                     const text = await res.text();
