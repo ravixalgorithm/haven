@@ -34,10 +34,17 @@ app.use("*", logger());
 app.use(
     "*",
     cors({
-        origin: "*",
+        origin: (origin, c) => {
+            const allowedOrigins = (process.env.CORS_ORIGIN || "").split(",");
+            // Allow requests with no origin (like mobile apps or curl) and allowed domains
+            if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
+                return origin || "*";
+            }
+            return allowedOrigins[0]; // Fallback
+        },
         allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-        allowHeaders: ["Content-Type", "Authorization"],
-        // credentials: true // Disabled to allow wildcard origin
+        allowHeaders: ["Content-Type", "Authorization", "Cookie"],
+        credentials: true,
     })
 );
 
