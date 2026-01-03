@@ -16,9 +16,11 @@ export class SocketService {
     }
 
     public init(httpServer: HttpServer): void {
+        const origins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ["http://localhost:3000"];
+
         this.io = new Server(httpServer, {
             cors: {
-                origin: ["http://localhost:3000", "https://admin.socket.io"],
+                origin: origins,
                 methods: ["GET", "POST"],
                 credentials: true,
             },
