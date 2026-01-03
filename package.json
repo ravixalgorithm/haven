@@ -2,6 +2,10 @@
   "name": "haven",
   "packageManager": "npm@10.9.0",
   "description": "Community code snippet platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
