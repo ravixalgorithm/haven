@@ -1,0 +1,32 @@
+[dotenv@17.2.3] injecting env (8) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+
+Error: Prisma schema validation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mError parsing attribute "@@fulltext": Defining fulltext indexes is not supported with the current connector.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:62[0m
+[1;94m   | [0m
+[1;94m61 | [0m  @@index([username])
+[1;94m62 | [0m  [1;91m@@fulltext([username, bio]) // MySQL only, use PostgreSQL search instead[0m
+[1;94m   | [0m
+[1;91merror[0m: [1mError parsing attribute "@@fulltext": Defining fulltext indexes is not supported with the current connector.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:124[0m
+[1;94m   | [0m
+[1;94m123 | [0m  // Full-text search on PostgreSQL
+[1;94m124 | [0m  [1;91m@@fulltext([title, description])[0m
+[1;94m   | [0m
+[1;91merror[0m: [1mError validating field `user` in model `Session`: The relation field `user` on model `Session` is missing an opposite relation field on the model `User`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:192[0m
+[1;94m   | [0m
+[1;94m191 | [0m  userId BigInt @unique
+[1;94m192 | [0m  [1;91muser User @relation(fields: [userId], references: [id], onDelete: Cascade)[0m
+[1;94m193 | [0m
+[1;94m   | [0m
+
+Validation Error Count: 3
+[Context: validate]
+
+Prisma CLI Version : 7.2.0

@@ -1,0 +1,45 @@
+
+> web@0.1.0 lint C:\Users\11ara\github\haven\apps\web
+> eslint .
+
+
+C:\Users\11ara\github\haven\apps\web\app\user\[username]\page.tsx
+   83:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\11ara\github\haven\apps\web\app\user\[username]\page.tsx:83:9
+  81 |
+  82 |         // Fetch Profile
+> 83 |         setLoadingUser(true);
+     |         ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  84 |         fetch(`http://localhost:3001/api/v1/users/${decodedUsername}`)
+  85 |             .then(res => res.json())
+  86 |             .then(data => {  react-hooks/set-state-in-effect
+  141:33  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @next/next/no-img-element
+
+C:\Users\11ara\github\haven\apps\web\components\Header.tsx
+  17:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\11ara\github\haven\apps\web\components\Header.tsx:17:9
+  15 |         const token = getToken();
+  16 |          
+> 17 |         setIsAuth(!!token);
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  18 |         // Fetch user info if authenticated
+  19 |         if (token) {
+  20 |             // Assuming API is proxied or CORS allows. Using full URL for safety during dev if not proxied  react-hooks/set-state-in-effect
+
+Γ£û 3 problems (2 errors, 1 warning)
+
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

@@ -1,14 +1,397 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
+// This file is read by Prisma and generates:
+// 1. Database migration files
+// 2. TypeScript types for queries
+// 3. Prisma Client (ORM)
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+  engineType = "library"
+}
+
+// ========================================
+// USERS TABLE
+// ========================================
+// Stores user account information
+// Supports GitHub OAuth and Email/Password
+
+model User {
+  // Primary Key
+  id BigInt @id @default(autoincrement())
+
+  // GitHub OAuth Fields
+  // githubId is UNIQUE if GitHub login used
+  // Set to null if email/password login only
+  githubId String? @unique @db.VarChar(100)
+
+  // Email/Password Fields
+  // email is UNIQUE if email login used
+  // password is BCRYPT hashed (never store plaintext!)
+  email String? @unique @db.VarChar(255)
+  password String? @db.VarChar(255) // bcrypt hash
+  role Role @default(USER)
+
+  // Profile Information
+  username String @unique @db.VarChar(255)
+  // avatarUrl comes from:
+  // - GitHub profile picture (if GitHub login)
+  // - User uploads (if email login)
+  avatarUrl String? @db.Text
+  bio String? @db.Text
+
+  // Reputation System (future feature)
+  snippetCount Int @default(0) // Total snippets posted
+  followerCount Int @default(0) // Number of followers
+  reputation Int @default(0) // Points from upvotes
+  
+  badges UserBadge[]
+
+  // Relations (these create foreign keys)
+  snippets Snippet[] // All snippets created by this user
+  ratings Rating[] // All votes by this user
+  comments Comment[] // All comments by this user
+  commentVotes CommentVote[] // All comment votes by this user
+  sessions Session[] // Active sessions
+  notificationsReceived Notification[] @relation("NotificationRecipient")
+  notificationsTriggered Notification[] @relation("NotificationActor")
+  savedSnippets SavedSnippet[]
+  reportsMade Report[]
+
+  // Follow System
+  followedBy Follows[] @relation("following")
+  following Follows[] @relation("follower")
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLoginAt DateTime?
+
+  // Indexes for Fast Queries
+  // Indexes for Fast Queries
+  @@index([email])
+  @@index([githubId])
+  @@index([username])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ========================================
+// SNIPPETS TABLE
+// ========================================
+// Core content: code snippets
+// Each snippet is one piece of code
+
+model Snippet {
+  id BigInt @id @default(autoincrement())
+
+  // URL-friendly identifier
+  // Example: "react-dark-mode-hook"
+  slug String @unique @db.VarChar(500)
+
+  // Basic Information
+  title String @db.VarChar(255)
+  // Description of what the code does
+  description String? @db.Text
+  // The actual code
+  code String @db.Text
+  // Programming language (javascript, python, rust, etc)
+  language String @db.VarChar(50)
+
+  // Categorization
+  // Array of tags: ["react", "hooks", "dark-mode"]
+  tags String[] @default([])
+
+  // Relations
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId BigInt
+
+  // Nested relations
+  ratings Rating[] // All upvotes/downvotes
+  comments Comment[] // All comments on this snippet
+  notifications Notification[] // All notifications related to this snippet
+  savedBy SavedSnippet[] // Users who saved this snippet
+  reports Report[] // Reports against this snippet
+
+  // Metrics (updated in cache first, then DB periodically)
+  viewCount Int @default(0)
+  upvotes Int @default(0)
+  downvotes Int @default(0)
+
+  // SEO Fields
+  metaTitle String? @db.VarChar(255)
+  metaDescription String? @db.VarChar(500)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // When was this featured on homepage?
+  featuredAt DateTime?
+
+  // Soft delete (mark as deleted, don't remove)
+  deletedAt DateTime?
+
+  // Indexes for Common Queries
+  @@index([language])
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([upvotes])
+  @@index([slug])
+  // Full-text search on PostgreSQL
+  // @@fulltext([title, description])
+  
+
+}
+
+// ========================================
+// RATINGS TABLE
+// ========================================
+// Tracks upvotes/downvotes
+// Each user can vote once per snippet
+
+model Rating {
+  id BigInt @id @default(autoincrement())
+
+  // Foreign Keys
+  snippet Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  snippetId BigInt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId BigInt
+
+  // Type of vote
+  type String @db.VarChar(20) // "upvote" or "downvote"
+
+  createdAt DateTime @default(now())
+
+  // UNIQUE constraint: Only one vote per user per snippet
+  @@unique([snippetId, userId])
+  @@index([snippetId])
+  @@index([userId])
+}
+
+// ========================================
+// COMMENTS TABLE
+// ========================================
+// Discussions on snippets
+
+model Comment {
+  id BigInt @id @default(autoincrement())
+
+  // Foreign Keys
+  snippet Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  snippetId BigInt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId BigInt
+
+  content String @db.Text
+
+  // Nesting (Threaded Comments)
+  parentId BigInt?
+  parent Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  // Voting
+  votes CommentVote[]
+  upvotes Int @default(0)
+  downvotes Int @default(0)
+  reports Report[] // Reports against this comment
+
+  // Soft delete
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([snippetId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+model CommentVote {
+  id BigInt @id @default(autoincrement())
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId BigInt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId BigInt
+
+  type String @db.VarChar(20) // "upvote" or "downvote"
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
+}
+
+// ========================================
+// SESSIONS TABLE (optional)
+// ========================================
+// Track user sessions for JWT tokens
+// Can be stored in Redis instead
+
+model Session {
+  id String @id @unique @default(cuid())
+
+  userId BigInt @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // JWT token
+  token String @unique @db.Text
+
+  // When does session expire?
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ========================================
+// NOTIFICATIONS TABLE
+// ========================================
+// Tracks notifications for users
+// Types: upvote, comment, follow
+
+model Notification {
+  id BigInt @id @default(autoincrement())
+
+  // Recipient of the notification
+  user   User   @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  userId BigInt
+
+  // Type of notification
+  type String @db.VarChar(50) // "upvote", "comment", "follow"
+
+  // Human-readable message
+  message String @db.VarChar(255)
+
+  // Who triggered the notification
+  actor   User   @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+  actorId BigInt
+
+  // Optional: related snippet
+  snippet   Snippet? @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  snippetId BigInt?
+
+  // Read status
+  read Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([actorId])
+  @@index([snippetId])
+  @@index([read])
+  @@index([createdAt])
+}
+
+// ========================================
+// REPORTS TABLE
+// ========================================
+// Track content reports for moderation
+
+model Report {
+  id BigInt @id @default(autoincrement())
+
+  // Who reported it
+  reporter   User   @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reporterId BigInt
+
+  // What was reported (Snippet or Comment)
+  snippet   Snippet? @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  snippetId BigInt?
+
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId BigInt?
+
+  // Why was it reported?
+  reason String @db.Text
+  status String @default("pending") // "pending", "resolved", "dismissed"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reporterId])
+  @@index([snippetId])
+  @@index([commentId])
+  @@index([status])
+}
+
+// ========================================
+// FOLLOWS TABLE
+// ========================================
+// Many-to-Many relationship for user following
+// User A follows User B
+
+model Follows {
+  follower    User @relation("follower", fields: [followerId], references: [id])
+  followerId  BigInt
+  following   User @relation("following", fields: [followingId], references: [id])
+  followingId BigInt
+
+  createdAt   DateTime @default(now())
+
+  @@id([followerId, followingId])
+}
+
+// ========================================
+// SAVED SNIPPETS TABLE
+// ========================================
+// Track which snippets users have saved/bookmarked
+
+model SavedSnippet {
+  id BigInt @id @default(autoincrement())
+
+  // User who saved the snippet
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId BigInt
+
+  // The saved snippet
+  snippet   Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  snippetId BigInt
+
+  createdAt DateTime @default(now())
+
+  // Each user can only save a snippet once
+  @@unique([userId, snippetId])
+  @@index([userId])
+  @@index([snippetId])
+}
+
+
+// ========================================
+// BADGES TABLE
+// ========================================
+// Gamification system
+model Badge {
+  id String @id @db.VarChar(50) // slug, e.g. "first-post"
+  name String @db.VarChar(100)
+  description String @db.VarChar(255)
+  icon String @db.VarChar(50) // emoji or icon name
+  
+  users UserBadge[]
+}
+
+model UserBadge {
+  id BigInt @id @default(autoincrement())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId BigInt
+  
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  badgeId String @db.VarChar(50)
+  
+  awardedAt DateTime @default(now())
+  
+  @@unique([userId, badgeId])
 }

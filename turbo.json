@@ -1,12 +1,29 @@
 {
-  "globalDependencies": ["**/.env.local"],
-  "pipeline": {
+  "globalDependencies": [
+    "**/.env.local"
+  ],
+  "tasks": {
     "dev": {
       "cache": false
     },
     "build": {
-      "outputs": [".next/**", "dist/**"],
-      "dependsOn": ["^build"]
+      "outputs": [
+        ".next/**",
+        "dist/**"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "lint": {
+      "dependsOn": [
+        "^lint"
+      ]
+    },
+    "type-check": {
+      "dependsOn": [
+        "^type-check"
+      ]
     }
   }
 }

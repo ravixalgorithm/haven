@@ -1,17 +1,22 @@
 {
   "name": "haven",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "packageManager": "pnpm@10.8.1",
+  "description": "Community code snippet platform",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean && rm -rf node_modules"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
-    "pnpm": "^10.27.0",
-    "turbo": "^2.7.2"
+    "turbo": "latest",
+    "pnpm": "latest"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
   }
 }
