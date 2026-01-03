@@ -62,12 +62,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                 });
             });
 
-            // Disable Socket.IO on Vercel (Serverless) to prevent 404/CORS errors
-            if (!socketUrl.includes("vercel.app")) {
-                socketInstance.connect();
-            } else {
-                console.warn("Socket.IO disabled on Vercel environment");
-            }
+            // The socket is now configured to autoConnect: true, so no explicit connect() call is needed here.
             setSocket(socketInstance);
         }
 
