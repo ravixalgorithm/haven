@@ -66,4 +66,12 @@ export class SocketService {
             console.warn("Socket.io not initialized, cannot emit to user");
         }
     }
+
+    public broadcast(event: string, data: any): void {
+        if (this.io) {
+            this.io.emit(event, data);
+        } else {
+            console.warn("Socket.io not initialized, cannot broadcast");
+        }
+    }
 }

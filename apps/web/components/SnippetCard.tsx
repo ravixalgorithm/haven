@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { getToken } from '@/lib/auth';
 import { dispatchVoteUpdate } from '@/lib/events';
+import { useSocket } from '@/context/SocketContext';
 import ShareModal from '@/components/ShareModal';
 import { API_URL } from '@/lib/config';
 
@@ -42,9 +43,33 @@ export default function SnippetCard({
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [origin, setOrigin] = useState('');
 
+    const { socket } = useSocket();
+
     useEffect(() => {
         setOrigin(window.location.origin);
     }, []);
+
+    // Real-time vote updates
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleVoteUpdate = (data: any) => {
+            if (data.id === id) {
+                setVotes({
+                    upvotes: data.upvotes,
+                    downvotes: data.downvotes
+                });
+                // Also update local score if it's currently displayed differently?
+                // Actually the score is derived from votes state.
+            }
+        };
+
+        socket.on('snippet:vote_update', handleVoteUpdate);
+
+        return () => {
+            socket.off('snippet:vote_update', handleVoteUpdate);
+        };
+    }, [socket, id]);
 
     // Fetch initial vote status and saved status
     useEffect(() => {

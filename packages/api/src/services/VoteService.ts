@@ -2,6 +2,7 @@ import { prisma } from "../lib/prisma";
 import { cacheDelete, cacheDeletePattern } from "../utils/cache";
 import { SnippetService } from "./SnippetService";
 import { BadgeService } from "./BadgeService";
+import { SocketService } from "../lib/socket";
 
 export class VoteService {
     /**
@@ -75,6 +76,9 @@ export class VoteService {
         // Invalidate cache
         await cacheDelete(`snippet:${idOrSlug}`);
         await cacheDeletePattern(`trending:*`);
+
+        // Broadcast real-time update
+        this.broadcastVoteUpdate(sId.toString(), Number(updatedSnippet.upvotes), Number(updatedSnippet.downvotes));
 
         try {
             await BadgeService.checkAndAwardBadges(snippet.authorId);
@@ -166,6 +170,10 @@ export class VoteService {
 
             await cacheDelete(`snippet:${idOrSlug}`);
             await cacheDeletePattern(`trending:*`);
+
+            // Broadcast real-time update
+            this.broadcastVoteUpdate(sId.toString(), Number(updatedSnippet.upvotes), Number(updatedSnippet.downvotes));
+
             return updatedSnippet;
         }
 
@@ -202,6 +210,19 @@ export class VoteService {
 
         await cacheDelete(`snippet:${idOrSlug}`);
         await cacheDeletePattern(`trending:*`);
+
+        // Broadcast real-time update
+        this.broadcastVoteUpdate(sId.toString(), Number(updatedSnippet.upvotes), Number(updatedSnippet.downvotes));
+
         return updatedSnippet;
+    }
+
+    private static broadcastVoteUpdate(snippetId: string, upvotes: number, downvotes: number) {
+        SocketService.getInstance().broadcast("snippet:vote_update", {
+            id: snippetId,
+            score: upvotes - downvotes,
+            upvotes,
+            downvotes
+        });
     }
 }
