@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getToken } from '@/lib/auth';
 import { dispatchVoteUpdate } from '@/lib/events';
 import { useSocket } from '@/context/SocketContext';
@@ -40,6 +40,12 @@ export default function SnippetCard({
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [shareModalOpen, setShareModalOpen] = useState(false);
+
+    // Refs to track local user interaction. 
+    // If user interacts before server data loads, we respect local state and ignore server "initial" state.
+    const hasVotedRef = useRef(false);
+    const hasSavedRef = useRef(false);
+
     const [origin, setOrigin] = useState('');
 
     const { socket } = useSocket();
@@ -83,7 +89,9 @@ export default function SnippetCard({
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    setUserVote(data.data.vote);
+                    if (!hasVotedRef.current) {
+                        setUserVote(data.data.vote);
+                    }
                 }
             } catch (e) {
                 // Ignore error (user might not have voted)
@@ -97,7 +105,9 @@ export default function SnippetCard({
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    setIsSaved(data.data.saved);
+                    if (!hasSavedRef.current) {
+                        setIsSaved(data.data.saved);
+                    }
                 }
             } catch (e) { console.error(e); }
         };
@@ -117,6 +127,8 @@ export default function SnippetCard({
             alert('Please login to vote');
             return;
         }
+
+        hasVotedRef.current = true;
 
         // Optimistic update
         const previousVote = userVote;
@@ -172,6 +184,7 @@ export default function SnippetCard({
 
         if (isSaving) return;
         setIsSaving(true);
+        hasSavedRef.current = true;
         setIsSaved(!isSaved); // Optimistic
 
         try {
