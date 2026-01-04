@@ -76,6 +76,7 @@ export class VoteService {
         // Invalidate cache
         await cacheDelete(`snippet:${idOrSlug}`);
         await cacheDeletePattern(`trending:*`);
+        await cacheDeletePattern(`snippets:list:*`);
 
         // Broadcast real-time update
         this.broadcastVoteUpdate(sId.toString(), Number(updatedSnippet.upvotes), Number(updatedSnippet.downvotes));
@@ -170,6 +171,7 @@ export class VoteService {
 
             await cacheDelete(`snippet:${idOrSlug}`);
             await cacheDeletePattern(`trending:*`);
+            await cacheDeletePattern(`snippets:list:*`);
 
             // Broadcast real-time update
             this.broadcastVoteUpdate(sId.toString(), Number(updatedSnippet.upvotes), Number(updatedSnippet.downvotes));
@@ -210,6 +212,7 @@ export class VoteService {
 
         await cacheDelete(`snippet:${idOrSlug}`);
         await cacheDeletePattern(`trending:*`);
+        await cacheDeletePattern(`snippets:list:*`);
 
         // Broadcast real-time update
         this.broadcastVoteUpdate(sId.toString(), Number(updatedSnippet.upvotes), Number(updatedSnippet.downvotes));
