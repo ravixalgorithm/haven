@@ -37,7 +37,6 @@ export default function SnippetCard({
 }: SnippetCardProps) {
     const [votes, setVotes] = useState({ upvotes, downvotes });
     const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null);
-    const [isVoting, setIsVoting] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -114,8 +113,10 @@ export default function SnippetCard({
             return;
         }
 
-        if (isVoting) return;
-        setIsVoting(true);
+        if (!token) {
+            alert('Please login to vote');
+            return;
+        }
 
         // Optimistic update
         const previousVote = userVote;
@@ -159,8 +160,6 @@ export default function SnippetCard({
             // Revert
             setUserVote(previousVote);
             setVotes(previousVotes);
-        } finally {
-            setIsVoting(false);
         }
     };
 
@@ -248,7 +247,6 @@ export default function SnippetCard({
                 <div className="flex items-center gap-1">
                     <button
                         onClick={(e) => { e.stopPropagation(); handleVote('upvote'); }}
-                        disabled={isVoting}
                         className={`p-1 rounded transition-colors ${userVote === 'upvote' ? 'text-teal-600' : 'hover:text-teal-600'}`}
                     >
                         <svg className="w-4 h-4" fill={userVote === 'upvote' ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
@@ -258,7 +256,6 @@ export default function SnippetCard({
                     </span>
                     <button
                         onClick={(e) => { e.stopPropagation(); handleVote('downvote'); }}
-                        disabled={isVoting}
                         className={`p-1 rounded transition-colors ${userVote === 'downvote' ? 'text-red-500' : 'hover:text-red-500'}`}
                     >
                         <svg className="w-4 h-4" fill={userVote === 'downvote' ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
