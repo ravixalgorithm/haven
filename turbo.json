@@ -2,6 +2,13 @@
   "globalDependencies": [
     "**/.env.local"
   ],
+  "globalPassThroughEnv": [
+    "SERVER_API_URL",
+    "NEXT_PUBLIC_SOCKET_URL",
+    "NEXT_PUBLIC_API_URL",
+    "NEXT_PUBLIC_GITHUB_CLIENT_ID",
+    "NODE_ENV"
+  ],
   "tasks": {
     "dev": {
       "cache": false
