@@ -120,16 +120,51 @@ export default function EditProfilePage() {
                         </div>
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                Avatar URL
+                                Profile Picture
                             </label>
-                            <input
-                                type="url"
-                                value={avatarUrl}
-                                onChange={(e) => setAvatarUrl(e.target.value)}
-                                placeholder="https://example.com/avatar.jpg"
-                                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                            />
-                            <p className="mt-1 text-xs text-slate-500">Enter a URL to your profile picture</p>
+                            <div className="flex flex-col gap-2">
+                                <input
+                                    id="avatar-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+
+                                        if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                                            alert("Image size should be less than 2MB");
+                                            return;
+                                        }
+
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => {
+                                            setAvatarUrl(reader.result as string);
+                                        };
+                                        reader.readAsDataURL(file);
+                                    }}
+                                />
+                                <div className="flex items-center gap-3">
+                                    <label
+                                        htmlFor="avatar-upload"
+                                        className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-white rounded-lg cursor-pointer font-medium transition-colors text-sm"
+                                    >
+                                        Upload New Image
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setAvatarUrl('');
+                                        }}
+                                        className="text-red-500 hover:text-red-700 text-sm font-medium"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                                <p className="text-xs text-slate-500">
+                                    JPG, PNG or GIF. Max 2MB.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -203,7 +238,7 @@ export default function EditProfilePage() {
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
