@@ -342,7 +342,7 @@ export default function Home() {
 
           <div className="flex justify-center gap-4">
             <Link
-              href="https://github.com/opendevsociety"
+              href="https://github.com/open-dev-society"
               target="_blank"
               className="inline-flex items-center gap-2 text-teal-400 font-bold hover:text-teal-300 transition-colors"
             >
