@@ -9,6 +9,8 @@ import CommentSection from '@/components/CommentSection';
 import ShareModal from '@/components/ShareModal';
 import { getToken } from '@/lib/auth';
 import { API_URL } from '@/lib/config';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function SnippetDetailPage(props: { params: Promise<{ id: string }> }) {
     const params = use(props.params);
@@ -383,7 +385,7 @@ export default function SnippetDetailPage(props: { params: Promise<{ id: string 
                                         };
 
                                         // Extract language class
-                                        let language = 'TEXT';
+                                        let language = 'javascript'; // Default
                                         let content = '';
 
                                         const codeChild = Array.isArray(children) ? children[0] : children;
@@ -409,13 +411,20 @@ export default function SnippetDetailPage(props: { params: Promise<{ id: string 
                                                     <CopyButton content={content} />
                                                 </div>
 
-                                                {/* Code Content */}
+                                                {/* Code Content with Syntax Highlighting */}
                                                 <div className="relative">
                                                     {/* Subtle Grid Background for Code */}
                                                     <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
-                                                    <pre className="p-8 overflow-x-auto font-mono text-slate-300 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                                                        <code>{content}</code>
-                                                    </pre>
+                                                    <SyntaxHighlighter
+                                                        language={language}
+                                                        style={atomDark}
+                                                        customStyle={{ margin: 0, padding: '2rem', background: 'transparent' }}
+                                                        wrapLines={true}
+                                                        showLineNumbers={true}
+                                                        lineNumberStyle={{ minWidth: "2.5em", paddingRight: "1em", color: "#4b5563", textAlign: "right" }}
+                                                    >
+                                                        {content}
+                                                    </SyntaxHighlighter>
                                                 </div>
                                             </div>
                                         );

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { getToken } from '@/lib/auth';
 import ReactMarkdown from 'react-markdown';
 import { API_URL } from '@/lib/config';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const LANGUAGES = [
     'javascript', 'typescript', 'python', 'java', 'go', 'rust',
@@ -302,6 +304,9 @@ function ToolbarBtn({ onClick, icon, label }: { onClick: () => void, icon?: any,
     );
 }
 
+
+// ... CreateSnippetForm component code ...
+
 function MarkdownPreview({ content }: { content: string }) {
     return (
         <ReactMarkdown
@@ -321,7 +326,7 @@ function MarkdownPreview({ content }: { content: string }) {
                     };
 
                     let content = '';
-                    let language = 'TEXT';
+                    let language = 'javascript'; // Default
 
                     const codeChild = Array.isArray(children) ? children[0] : children;
                     if (codeChild?.props?.className) {
@@ -332,29 +337,41 @@ function MarkdownPreview({ content }: { content: string }) {
                     content = processNode(children).replace(/\n$/, '');
 
                     return (
-                        <div className="my-8 rounded-xl overflow-hidden bg-[#050505] border border-slate-800 shadow-2xl ring-1 ring-white/5">
-                            <div className="flex items-center justify-between px-5 py-3 bg-[#0a0a0a] border-b border-slate-800">
-                                <div className="flex items-center gap-2">
-                                    <div className="flex gap-1.5">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50" />
-                                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
-                                        <div className="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/50" />
+                        <div className="not-prose my-10 rounded-2xl overflow-hidden bg-[#0d0e11] border border-slate-800 shadow-2xl ring-1 ring-white/5 group relative text-sm leading-relaxed">
+                            {/* Code Header */}
+                            <div className="flex items-center justify-between px-5 py-3 bg-white/5 border-b border-white/5 backdrop-blur-sm">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex gap-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
+                                        <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#ff5f56]/50" />
+                                        <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#ffbd2e]/50" />
+                                        <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#27c93f]/50" />
                                     </div>
-                                    <span className="ml-3 text-xs font-mono text-slate-500 uppercase font-bold tracking-wider">
-                                        {language}
-                                    </span>
+                                    <span className="ml-2 font-mono text-xs font-bold text-slate-500 uppercase tracking-widest">{language}</span>
                                 </div>
                                 <CopyButton content={content} />
                             </div>
-                            <pre className="p-8 overflow-x-auto text-[15px] font-mono leading-8 text-gray-300 m-0 font-sans bg-[#050505]">
-                                <code>{content}</code>
-                            </pre>
+
+                            {/* Code Content */}
+                            <div className="relative">
+                                {/* Subtle Grid Background for Code */}
+                                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
+                                <SyntaxHighlighter
+                                    language={language}
+                                    style={atomDark}
+                                    customStyle={{ margin: 0, padding: '2rem', background: 'transparent' }}
+                                    wrapLines={true}
+                                    showLineNumbers={true}
+                                    lineNumberStyle={{ minWidth: "2.5em", paddingRight: "1em", color: "#4b5563", textAlign: "right" }}
+                                >
+                                    {content}
+                                </SyntaxHighlighter>
+                            </div>
                         </div>
                     );
                 },
                 code({ children, className, ...props }) {
                     return (
-                        <code className="bg-slate-100 dark:bg-[#1a1a1a] px-1.5 py-0.5 rounded text-sm font-mono text-slate-800 dark:text-teal-400 font-sans border border-slate-200 dark:border-slate-800" {...props}>
+                        <code className="bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded text-sm text-teal-700 dark:text-teal-300 font-mono font-medium border border-teal-200/50 dark:border-teal-800/50" {...props}>
                             {children}
                         </code>
                     );
@@ -379,14 +396,14 @@ function CopyButton({ content }: { content: string }) {
         <button
             type="button"
             onClick={handleCopy}
-            className="group flex items-center gap-2 text-xs font-sans font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-wider py-1.5 px-3 rounded-md hover:bg-white/10"
+            className="group flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition-all uppercase tracking-wider py-1.5 px-3 rounded-md hover:bg-white/10 active:scale-95"
             title="Copy Code"
         >
-            <span className={`transition-opacity ${copied ? 'opacity-100 text-green-400' : 'opacity-0 group-hover:opacity-100'}`}>
+            <span className={`transition-all duration-300 ${copied ? 'opacity-100 text-teal-400 scale-110' : 'opacity-0 -translate-x-2 w-0 overflow-hidden group-hover:opacity-100 group-hover:w-auto group-hover:translate-x-0'}`}>
                 {copied ? 'Copied!' : 'Copy'}
             </span>
             {copied ? (
-                <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                <svg className="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
             ) : (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
             )}
